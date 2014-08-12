@@ -1,0 +1,23 @@
+{
+  "name": "filmy-node",
+  "version": "0.0.1",
+  "author": "Gonzalo Vazquez",
+  "description": "Thin client for Filmy",
+  "private": true,
+  "contributors": [
+    {
+      "name": "Gonzalo Vazquez",
+      "email": "gonzalo.segura1@gmail.com"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gonzalovazquez/filmy-node.git"
+  },
+  "devDependencies": {
+    "mongojs": "^0.13.1",
+    "express": "^4.8.3",
+    "http": "0.0.0",
+    "body-parser": "^1.6.3"
+  }
+}
