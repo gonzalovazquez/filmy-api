@@ -18,6 +18,7 @@
     "mongojs": "^0.13.1",
     "express": "^4.8.3",
     "http": "0.0.0",
-    "body-parser": "^1.6.3"
+    "body-parser": "^1.6.3",
+    "cors": "^2.4.1"
   }
 }
