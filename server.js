@@ -21,10 +21,8 @@ app.all('/', function(req, res, next) {
 
 //Read a list of films
 app.get('/api/films', function(req, res) {
-	console.log("Hello from GET");
 	return FilmModel.find(function(err, films) {
 		if (!err) {
-			console.log("NO ERROR", films);
 			return res.send(films);
 		} else {
 			return console.log(err);
@@ -32,11 +30,9 @@ app.get('/api/films', function(req, res) {
 	})
 });
 
-// Create a Single Product
+// Create a Single Film
 app.post('/api/films', function(req, res) {
 	var film;
-	console.log("POST:");
-	console.log(req.body);
 	film = new FilmModel({
 		title: req.body.title,
 		year: req.body.year,
@@ -58,6 +54,7 @@ app.post('/api/films', function(req, res) {
 		imdbID: req.body.imdbID,
 		response: req.body.response
 	});
+
 	film.save(function(err) {
 		if (!err) {
 			return console.log('created');
@@ -65,10 +62,29 @@ app.post('/api/films', function(req, res) {
 			return console.log(err);
 		}
 	});
+
 	return res.send(film);
 });
 
+//Delete a film from collection
+app.delete('/api/films/:id', function (req, res){
+	return FilmModel.findById(req.params.id, function (err, film) {
+		return film.remove(function (err) {
+			if (!err) {
+				return FilmModel.find(function(err, films) {
+					if (!err) { 
+						return res.send(films)
+					} else {
+						return console.log(err);
+					}
+				})
+			} else {
+				console.log(err);
+			}
+		});
+	});
+});
 
 var server = app.listen(15715, function() {
-    console.log('CORS-enabled web server listening on port %d', server.address().port);
+	console.log('CORS-enabled web server listening on port %d', server.address().port);
 });
