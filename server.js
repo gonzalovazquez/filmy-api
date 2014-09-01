@@ -54,6 +54,7 @@ app.post('/api/films', function(req, res) {
 		imdbID: req.body.imdbID,
 		response: req.body.response
 	});
+	console.log('FILM', film);
 
 	film.save(function(err) {
 		if (!err) {
