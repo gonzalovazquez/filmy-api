@@ -23,7 +23,7 @@ var filmSchema = new mongoose.Schema({
 	poster: String,
 	metascore: Number,
 	imdbRating: Number,
-	imdbVotes: String,
+	imdbVotes: Number,
 	imdbID: String,
 	response: Boolean
 });
