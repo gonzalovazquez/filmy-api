@@ -1,4 +1,3 @@
-var databaseURL = 'mongodb://gvazquez:swordfish@dbh42.mongolab.com:27427/filmy/';
 var express = require('express');
 var app = express();
 var http = require('http');
