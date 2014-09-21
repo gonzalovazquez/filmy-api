@@ -17,6 +17,7 @@ var filmSchema = new mongoose.Schema({
 	director: String,
 	writer: Array,
 	actors: Array,
+	plot: String,
 	language: Array,
 	country: String,
 	awards: String,
