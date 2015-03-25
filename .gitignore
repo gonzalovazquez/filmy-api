@@ -28,6 +28,7 @@
 *.log
 *.sql
 *.sqlite
+config.js
  
 # OS generated files #
 ######################
