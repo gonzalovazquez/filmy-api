@@ -7,6 +7,19 @@ var bunyan = require('bunyan');
 var FilmModel = require("./model/film");
 var status = require('mod_statuspage');
 
+// View process of each status
+app.use(status({
+    url: '/status',
+    check: function(req) {
+    	log.info({ req: req }, 'Status Request');
+        if (req.something == false) {
+            return false; //Don't show status 
+        }
+        return true; //Show status 
+    },
+    responseContentType : 'html'
+}));
+
 // Logging
 var log = bunyan.createLogger({
     name: 'filmy',
@@ -22,18 +35,6 @@ app.use(bodyParser.urlencoded({
 	extended: true}));
 
 app.use(express.static('../filmy/public'));
-
-app.use(status({
-    url: '/status',
-    check: function(req) {
-    	log.info({ req: req }, 'Status Request');
-        if (req.something == false) {
-            return false; //Don't show status 
-        }
-        return true; //Show status 
-    },
-    responseContentType : 'html'
-}));
 
 app.all('/', function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
