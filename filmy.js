@@ -3,7 +3,16 @@ var app = express();
 var http = require('http');
 var bodyParser = require('body-parser');
 var cors = require('cors');
+var bunyan = require('bunyan');
 var FilmModel = require("./model/film");
+
+var log = bunyan.createLogger({
+    name: 'filmy',
+    serializers: {
+      req: bunyan.stdSerializers.req,
+      res: bunyan.stdSerializers.res
+    }
+});
 
 app.use(cors());
 
@@ -20,8 +29,10 @@ app.all('/', function(req, res, next) {
 
 //Read a list of films
 app.get('/api/films', function(req, res) {
+	log.info({ req: req }, 'Get films');
 	return FilmModel.find(function(err, films) {
 		if (!err) {
+			log.info({ res: res }, 'done response');
 			return res.send(films);
 		} else {
 			return console.log(err);
@@ -31,6 +42,7 @@ app.get('/api/films', function(req, res) {
 
 // Create a Single Film
 app.post('/api/films', function(req, res) {
+	log.info({ req: req }, 'Add films');
 	var film;
 	film = new FilmModel({
 		title: req.body.title,
@@ -61,17 +73,19 @@ app.post('/api/films', function(req, res) {
 			return console.log(err);
 		}
 	});
-
+	log.info({ res: res }, 'done response');
 	return res.send(film);
 });
 
 //Delete a film from collection
 app.delete('/api/films/:id', function (req, res){
+	log.info({ req: req }, 'Delete films');
 	return FilmModel.findById(req.params.id, function (err, film) {
 		return film.remove(function (err) {
 			if (!err) {
 				return FilmModel.find(function(err, films) {
 					if (!err) { 
+						log.info({ res: res }, 'done response');
 						return res.send(films)
 					} else {
 						return console.log(err);
