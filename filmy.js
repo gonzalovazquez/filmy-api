@@ -5,7 +5,9 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var bunyan = require('bunyan');
 var FilmModel = require("./model/film");
+var status = require('mod_statuspage');
 
+// Logging
 var log = bunyan.createLogger({
     name: 'filmy',
     serializers: {
@@ -20,6 +22,18 @@ app.use(bodyParser.urlencoded({
 	extended: true}));
 
 app.use(express.static('../filmy/public'));
+
+app.use(status({
+    url: '/status',
+    check: function(req) {
+    	log.info({ req: req }, 'Status Request');
+        if (req.something == false) {
+            return false; //Don't show status 
+        }
+        return true; //Show status 
+    },
+    responseContentType : 'html'
+}));
 
 app.all('/', function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
