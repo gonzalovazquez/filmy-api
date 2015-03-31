@@ -4,6 +4,9 @@
   "author": "Gonzalo Vazquez",
   "description": "Thin client for Filmy",
   "private": true,
+  "scripts" : {
+    "start" : "node app.js"
+  },
   "contributors": [
     {
       "name": "Gonzalo Vazquez",
