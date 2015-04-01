@@ -4,6 +4,8 @@ var http = require('http');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var FilmModel = require("./model/film");
+var Log = require('log');
+var log = new Log('info');
 
 app.use(cors());
 

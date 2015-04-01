@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
-var databaseEndPoint = require('../config.js');
+var databaseEndPoint = require('../config/config.js');
+
 var db = mongoose.connect(databaseEndPoint.production);
 
 //create schema for film
