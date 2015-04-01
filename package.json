@@ -2,7 +2,7 @@
   "name": "filmy-node",
   "version": "0.0.1",
   "author": "Gonzalo Vazquez",
-  "description": "Thin client for Filmy",
+  "description": "API for Filmy",
   "private": true,
   "scripts": {
     "start": "node cluster.js"
