@@ -2,10 +2,11 @@
   "name": "filmy-node",
   "version": "0.0.1",
   "author": "Gonzalo Vazquez",
-  "description": "API for Filmy",
+  "description": "API Filmy",
   "private": true,
   "scripts": {
-    "start": "node cluster.js"
+    "start": "node cluster.js",
+    "test": "node_modules/mocha/bin/mocha"
   },
   "contributors": [
     {
@@ -17,7 +18,9 @@
     "type": "git",
     "url": "https://github.com/gonzalovazquez/filmy-node.git"
   },
-  "devDependencies": {   
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-mocha": "^2.0.1",
     "mocha": "^2.2.1",
     "request": "^2.40.0",
     "supertest": "^0.15.0"

@@ -94,3 +94,5 @@ app.delete('/api/films/:id', function (req, res){
 var server = app.listen(15715, function() {
 	console.log('CORS-enabled web server listening on port %d', server.address().port);
 });
+
+module.exports.getApp = app;
