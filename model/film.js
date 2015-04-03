@@ -1,10 +1,7 @@
 var mongoose = require('mongoose');
+var databaseEndPoint = require('../config/config.js');
 
-//connect to database
-var db = mongoose.connect('mongodb://localhost/filmy');
-
-//Production
-//var db = mongoose.connect('mongodb://gvazquez:swordfish@dbh42.mongolab.com:27427/filmy');
+var db = mongoose.connect(databaseEndPoint.development);
 
 //create schema for film
 var filmSchema = new mongoose.Schema({
@@ -28,7 +25,5 @@ var filmSchema = new mongoose.Schema({
 	imdbID: String,
 	response: Boolean
 });
-
-
 //compile schema to model
 module.exports = db.model('film', filmSchema, 'movies');
