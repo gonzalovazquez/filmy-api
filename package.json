@@ -1,6 +1,6 @@
 {
   "name": "filmy-node",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "author": "Gonzalo Vazquez",
   "description": "API Filmy",
   "private": true,
