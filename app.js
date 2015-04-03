@@ -72,19 +72,23 @@ app.post('/api/films', function(req, res) {
 app.delete('/api/films/:id', function (req, res){
 	log.info('DELETE films');
 	return FilmModel.findById(req.params.id, function (err, film) {
-		return film.remove(function (err) {
-			if (!err) {
-				return FilmModel.find(function(err, films) {
-					if (!err) { 
-						return res.send(films)
-					} else {
-						return console.log(err);
-					}
-				})
-			} else {
-				console.log(err);
-			}
-		});
+		if (film) {
+			return film.remove(function (err) {
+				if (!err) {
+					return FilmModel.find(function(err, films) {
+						if (!err) { 
+							return res.send(films)
+						} else {
+							return console.log(err);
+						}
+					})
+				} else {
+					console.log(err);
+				}
+			});
+		} else {
+			return res.status(400).send('Bad Request');
+		}
 	});
 });
 

@@ -57,8 +57,14 @@ describe('filmy api', function() {
 			var url = '/api/films/'+ film_id.toString();
 
 			request(app)
-      	.delete(url)
-      	.expect(200, done);
+					.delete(url)
+					.expect(200, done);
+		});
+
+		it('should return 400 if film is wrong', function(done) {
+			request(app)
+					.delete('/api/films/12345678')
+					.expect(400, done);
 		});
 
 	});
