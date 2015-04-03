@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "start": "node cluster.js",
-    "test": "node_modules/mocha/bin/mocha"
+    "test": "node_modules/gulp/bin/gulp.js"
   },
   "contributors": [
     {
@@ -19,10 +19,12 @@
     "url": "https://github.com/gonzalovazquez/filmy-node.git"
   },
   "devDependencies": {
+    "assert": "^1.3.0",
     "gulp": "^3.8.11",
     "gulp-mocha": "^2.0.1",
     "mocha": "^2.2.1",
     "request": "^2.40.0",
+    "should": "^5.2.0",
     "supertest": "^0.15.0"
   },
   "dependencies": {
