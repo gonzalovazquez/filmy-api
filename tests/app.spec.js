@@ -37,7 +37,7 @@ describe('filmy api', function() {
 				});
 		});
 
-		it('should save a movie and responed with the updated list', function(done){
+		it('should not save a movie if the json object is invalid', function(done){
 			request(app)
 				.post('/api/films')
 				.send("Bad Stuff!!")

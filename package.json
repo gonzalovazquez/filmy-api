@@ -33,6 +33,6 @@
     "express": "^4.8.3",
     "express-validator": "^2.9.0",
     "log": "^1.4.0",
-    "mongoose": "^3.8.23"
+    "mongoose": "^4.0.1"
   }
 }
