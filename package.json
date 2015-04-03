@@ -5,7 +5,7 @@
   "description": "API Filmy",
   "private": true,
   "scripts": {
-    "start": "node cluster.js",
+    "start": "node run.js",
     "test": "node_modules/gulp/bin/gulp.js"
   },
   "contributors": [
@@ -28,10 +28,10 @@
     "supertest": "^0.15.0"
   },
   "dependencies": {
-    "log": "^1.4.0",
     "body-parser": "^1.6.3",
     "cors": "^2.4.1",
     "express": "^4.8.3",
-    "mongoose": "^3.8.15"
+    "log": "^1.4.0",
+    "mongoose": "^3.8.23"
   }
 }
