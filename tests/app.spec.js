@@ -37,6 +37,19 @@ describe('filmy api', function() {
 				});
 		});
 
+		it('should save a movie and responed with the updated list', function(done){
+			request(app)
+				.post('/api/films')
+				.send("Bad Stuff!!")
+				.expect(400)
+				.end(function(err, res) { // .end handles the response
+					if (err) {
+						return done(err);
+					}
+					done();
+				});
+		});
+
 	});
 
 	describe('DELETE /api/films', function() {

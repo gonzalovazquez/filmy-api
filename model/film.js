@@ -25,7 +25,5 @@ var filmSchema = new mongoose.Schema({
 	imdbID: String,
 	response: Boolean
 });
-
-
 //compile schema to model
 module.exports = db.model('film', filmSchema, 'movies');
