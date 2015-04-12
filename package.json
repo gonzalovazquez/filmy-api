@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "start": "node run.js",
-    "test": "node node node_modules/mocha/bin/mocha"
+    "test": "node node_modules/mocha/bin/mocha"
   },
   "contributors": [
     {
