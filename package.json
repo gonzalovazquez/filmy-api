@@ -5,7 +5,8 @@
   "description": "API Filmy",
   "private": true,
   "scripts": {
-    "start": "node run.js",
+    "start": "forever start run.js",
+    "stop": "forever stop run.js",
     "test": "node node_modules/mocha/bin/mocha"
   },
   "contributors": [
