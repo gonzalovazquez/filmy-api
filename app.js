@@ -1,6 +1,7 @@
 var express = require('express');
 var app = express();
 var http = require('http');
+var request = require('request');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var FilmModel = require("./model/film");
