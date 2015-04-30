@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var databaseEndPoint = require('../config/config.js');
-var environment = process.argv[2] || 'development';
+var environment = process.argv[2] || 'production';
 
 var db = mongoose.connect(databaseEndPoint[environment]);
 
