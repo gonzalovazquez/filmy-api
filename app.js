@@ -1,13 +1,13 @@
 var express = require('express');
 var app = express();
 var http = require('http');
-var request = require('request');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var FilmModel = require("./model/film");
 var expressValidator = require('express-validator');
 var Log = require('log');
 var log = new Log('info');
+var omdb = require("./services/omdb.js");
 
 app.use(cors());
 
@@ -17,10 +17,28 @@ app.use(expressValidator());
 app.use(express.static('../filmy/public'));
 
 app.all('/', function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	next();
  });
+
+app.post('/api/test', function(req, res) {
+
+	omdb.validateMovie(req.body.id).then(function(response){
+		var parsedResponse = JSON.parse(response);
+		console.log(parsedResponse);
+			try {
+				if (!parsedResponse.Response) {
+					return res.send(parsedResponse.Error)
+				} else {
+					return res.send(parsedResponse);
+				}
+			} catch (ex) {
+				return res.send(ex);
+			}
+		});
+
+});
 
 //Read a list of films
 app.get('/api/films', function(req, res) {
@@ -37,58 +55,68 @@ app.get('/api/films', function(req, res) {
 
 // Create a Single Film
 app.post('/api/films', function(req, res) {
-	var film;
-	var error = validateRequest(req);
+	var film,
+			error = validateRequest(req),
+			valid = false,
+			filmExist = false,
+			filmID = req.body.imdbID;
 
 	if (error) {
 		return res.status(400).send('Wrong format');
 	}
 
-	log.info('POST films');
-	
-	film = new FilmModel({
-		title: req.body.title,
-		year: req.body.year,
-		rated: req.body.rated,
-		released: req.body.released,
-		runtime: req.body.runtime,
-		genre: req.body.genre,
-		director: req.body.director,
-		writer: req.body.writer,
-		actors: req.body.actors,
-		plot: req.body.plot,
-		language: req.body.language,
-		country: req.body.country,
-		awards: req.body.awards,
-		poster: req.body.poster,
-		metascore: req.body.metascore,
-		imdbRating: req.body.imdbRating,
-		imdbVotes: req.body.imdbVotes,
-		imdbID: req.body.imdbID,
-		response: req.body.response
-	});
+	omdb.validateMovie(filmID).then(function(response){
+		var parsedResponse = JSON.parse(response);
 
-	film.save(function(err) {
-		if (!err) {
-			return console.log('created');
-		} else {
-			return res.status(404).send('Not available');
-			res.info(err);
+		try {
+			if (parsedResponse.Response === "False") {
+				log.info('Invalid movie');
+				log.info(parsedResponse.Error);
+				return res.status(400).send('Invalid movie');
+			} else {
+				film = createFilmModel(FilmModel, req);
+
+				FilmModel.find({ imdbID: filmID }, function(err, obj) {
+		
+					filmExist = obj.length;
+					
+					if (!filmExist) {
+						film.save(function(err) {
+							if (!err) {
+								log.info('POST films');
+								return res.status(200).send('Added film');
+							} else {
+								log.info(err);
+								return res.status(404).send('Not available');
+							}
+						});
+
+						return res.send(film);
+					} else {
+						return res.status(401).send('Film already exists');
+					}
+				});
+
+			}
+		} catch (error) {
+			log.info(error, 'Something wrong');
+			return res.status(400).send('Unable to validate movie');
 		}
-	});
-	return res.send(film);
+	});	
 });
 
 //Delete a film from collection
 app.delete('/api/films/:id', function (req, res){
 	log.info('DELETE films');
-	return FilmModel.findById(req.params.id, function (err, film) {
-		if (film) {
-			return film.remove(function (err) {
+
+	return FilmModel.find({imdbID: req.params.id}, function (err, response) {
+
+		if (response.length) {
+			return FilmModel.remove(function (err) {
 				if (!err) {
-					return FilmModel.find(function(err, films) {
+					return FilmModel.find(function(err, response) {
 						if (!err) { 
-							return res.send(films)
+							return res.send(response)
 						} else {
 							return console.log(err);
 						}
@@ -118,7 +146,37 @@ function validateRequest(req) {
 
 	errors = req.validationErrors();
 
+	log.info(errors);
+
 	return errors;
+}
+
+function createFilmModel(model, req) {
+	var film;
+
+	film = new model({
+		title: req.body.title,
+		year: req.body.year,
+		rated: req.body.rated,
+		released: req.body.released,
+		runtime: req.body.runtime,
+		genre: req.body.genre,
+		director: req.body.director,
+		writer: req.body.writer,
+		actors: req.body.actors,
+		plot: req.body.plot,
+		language: req.body.language,
+		country: req.body.country,
+		awards: req.body.awards,
+		poster: req.body.poster,
+		metascore: req.body.metascore,
+		imdbRating: req.body.imdbRating,
+		imdbVotes: req.body.imdbVotes,
+		imdbID: req.body.imdbID,
+		response: req.body.response
+	});
+
+	return film;
 }
 
 module.exports.getApp = app;

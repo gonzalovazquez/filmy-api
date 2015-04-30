@@ -1,7 +1,8 @@
 var mongoose = require('mongoose');
 var databaseEndPoint = require('../config/config.js');
+var environment = process.argv[2] || 'development';
 
-var db = mongoose.connect(databaseEndPoint.development);
+var db = mongoose.connect(databaseEndPoint[environment]);
 
 //create schema for film
 var filmSchema = new mongoose.Schema({
@@ -26,4 +27,5 @@ var filmSchema = new mongoose.Schema({
 	response: Boolean
 });
 //compile schema to model
+
 module.exports = db.model('film', filmSchema, 'movies');
