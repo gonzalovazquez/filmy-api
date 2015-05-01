@@ -84,14 +84,12 @@ app.post('/api/films', function(req, res) {
 						film.save(function(err) {
 							if (!err) {
 								log.info('POST films');
-								return res.status(200).send('Added film');
+								return res.status(200).send(film);
 							} else {
 								log.info(err);
 								return res.status(404).send('Not available');
 							}
 						});
-
-						return res.send(film);
 					} else {
 						return res.status(401).send('Film already exists');
 					}
