@@ -2,7 +2,6 @@ var request = require('request');
 var Promise = require('promise');
 var HOSTNAME = 'http://www.omdbapi.com/?i=';
 
-
 function validateMovie(id) {
 	return new Promise(function (fulfill, reject){
 		request
@@ -15,7 +14,9 @@ function validateMovie(id) {
 			.on('error', function(err) {
 				//Reject promise
 				console.log(err + '  ERROR FROM SERVICES');
-				if (err) reject(err);
+				if (err) {
+					reject(err);
+				}
 			});
   	});
 }

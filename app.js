@@ -1,6 +1,5 @@
 var express = require('express');
 var app = express();
-var http = require('http');
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var FilmModel = require("./model/film");
@@ -29,7 +28,7 @@ app.post('/api/test', function(req, res) {
 		console.log(parsedResponse);
 			try {
 				if (!parsedResponse.Response) {
-					return res.send(parsedResponse.Error)
+					return res.send(parsedResponse.Error);
 				} else {
 					return res.send(parsedResponse);
 				}
@@ -47,17 +46,16 @@ app.get('/api/films', function(req, res) {
 			log.info('GET films');
 			return res.send(films);
 		} else {
-			return res.status(404).send('Not available');
 			log.info(err);
+			return res.status(404).send('Not available');
 		}
-	})
+	});
 });
 
 // Create a Single Film
 app.post('/api/films', function(req, res) {
 	var film,
 			error = validateRequest(req),
-			valid = false,
 			filmExist = false,
 			filmID = req.body.imdbID;
 
@@ -118,7 +116,7 @@ app.delete('/api/films/:id', function (req, res){
 						} else {
 							return console.log(err);
 						}
-					})
+					});
 				} else {
 					console.log(err);
 				}
@@ -149,10 +147,10 @@ function validateRequest(req) {
 	return errors;
 }
 
-function createFilmModel(model, req) {
+function createFilmModel(Model, req) {
 	var film;
 
-	film = new model({
+	film = new Model({
 		title: req.body.title,
 		year: req.body.year,
 		rated: req.body.rated,
