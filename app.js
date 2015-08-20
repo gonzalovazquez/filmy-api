@@ -21,8 +21,26 @@ app.all('/', function(req, res, next) {
 	next();
  });
 
-app.post('/api/test', function(req, res) {
+ // Find film
+ app.post('/api', function (req, res) {
+	var titleName = req.query.title;
+	console.log(titleName);
+ 	omdb.findMovie(req.query.title).then(function(response) {
+ 		var parsedResponse = JSON.parse(response);
+ 			try {
+ 				if (!parsedResponse.Response) {
+ 					return res.send(parsedResponse.Error);
+ 				} else {
+ 					return res.send(parsedResponse);
+ 				}
+ 			} catch (ex) {
+ 				return res.send(ex);
+ 			}
+ 	})
+ });
 
+// Validate Film
+app.post('/api/test', function(req, res) {
 	omdb.validateMovie(req.body.id).then(function(response){
 		var parsedResponse = JSON.parse(response);
 		console.log(parsedResponse);
@@ -36,7 +54,6 @@ app.post('/api/test', function(req, res) {
 				return res.send(ex);
 			}
 		});
-
 });
 
 //Read a list of films
@@ -75,9 +92,9 @@ app.post('/api/films', function(req, res) {
 				film = createFilmModel(FilmModel, req);
 
 				FilmModel.find({ imdbID: filmID }, function(err, obj) {
-		
+
 					filmExist = obj.length;
-					
+
 					if (!filmExist) {
 						film.save(function(err) {
 							if (!err) {
@@ -98,7 +115,7 @@ app.post('/api/films', function(req, res) {
 			log.info(error, 'Something wrong');
 			return res.status(400).send('Unable to validate movie');
 		}
-	});	
+	});
 });
 
 //Delete a film from collection
@@ -111,7 +128,7 @@ app.delete('/api/films/:id', function (req, res){
 			return FilmModel.remove(function (err) {
 				if (!err) {
 					return FilmModel.find(function(err, response) {
-						if (!err) { 
+						if (!err) {
 							return res.send(response)
 						} else {
 							return console.log(err);
