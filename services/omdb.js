@@ -39,5 +39,5 @@ function validateMovie(id) {
   	});
 }
 
-//module.exports.validateMovie = validateMovie;
+module.exports.validateMovie = validateMovie;
 module.exports.findMovie = findMovie;

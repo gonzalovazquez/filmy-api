@@ -1,11 +1,11 @@
-var should = require('should'); 
+var should = require('should');
 var assert = require('assert');
 var request = require('supertest');
 var express = require('express');
 var nock = require("nock");
 var app = require('../app.js').getApp;
 
-var createNock = function(status, response){ 
+var createNock = function(status, response){
 	nock("http://www.omdbapi.com")
 	.filteringPath(function(path){
 				return '/';
@@ -20,6 +20,22 @@ nock.enableNetConnect();
 
 
 describe('filmy api', function() {
+
+	describe('GET /film with title', function() {
+
+		it('should respond with movie object', function(done) {
+			request(app)
+				.get('/api/?title=Pulp Fiction')
+				.expect(200, done)
+		});
+
+		it('should validate film by id', function(done) {
+			request(app)
+				.get('/api/validate/?id=tt0110912')
+				.expect(200, done)
+		});
+
+	});
 
 	describe('GET /films', function(){
 
@@ -128,7 +144,6 @@ describe('filmy api', function() {
 
 		it('should be able to delete move by imdbID', function(done) {
 			var url = '/api/films/'+ film_id;
-			
 
 			request(app)
 					.delete(url)

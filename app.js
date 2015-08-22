@@ -6,7 +6,8 @@ var FilmModel = require("./model/film");
 var expressValidator = require('express-validator');
 var Log = require('log');
 var log = new Log('info');
-var omdb = require("./services/omdb.js");
+var omdb = require('./services/omdb.js');
+var validateRequest = require('./utils/validateRequest').validateRequest;
 
 app.use(cors());
 
@@ -22,9 +23,8 @@ app.all('/', function(req, res, next) {
  });
 
  // Find film
- app.post('/api', function (req, res) {
+ app.get('/api', function (req, res) {
 	var titleName = req.query.title;
-	console.log(titleName);
  	omdb.findMovie(req.query.title).then(function(response) {
  		var parsedResponse = JSON.parse(response);
  			try {
@@ -40,10 +40,10 @@ app.all('/', function(req, res, next) {
  });
 
 // Validate Film
-app.post('/api/test', function(req, res) {
-	omdb.validateMovie(req.body.id).then(function(response){
+app.get('/api/validate', function(req, res) {
+	var id = req.query.id;
+	omdb.validateMovie(id).then(function(response){
 		var parsedResponse = JSON.parse(response);
-		console.log(parsedResponse);
 			try {
 				if (!parsedResponse.Response) {
 					return res.send(parsedResponse.Error);
@@ -147,22 +147,6 @@ app.delete('/api/films/:id', function (req, res){
 var server = app.listen(15715, function() {
 	console.log('CORS-enabled web server listening on port %d', server.address().port);
 });
-
-function validateRequest(req) {
-	var errors;
-
-	req.checkBody('title', 'Invalid title').notEmpty();
-	req.checkBody('year', 'Invalid year').notEmpty();
-	req.checkBody('rated', 'Invalid rated').notEmpty();
-	req.checkBody('released', 'Invalid released').notEmpty();
-	req.checkBody('runtime', 'Invalid runtime').notEmpty();
-
-	errors = req.validationErrors();
-
-	log.info(errors);
-
-	return errors;
-}
 
 function createFilmModel(Model, req) {
 	var film;
