@@ -1,11 +1,29 @@
 var request = require('request');
 var Promise = require('promise');
-var HOSTNAME = 'http://www.omdbapi.com/?i=';
+var HOSTNAME = 'http://www.omdbapi.com/?';
+
+function findMovie(name) {
+	var movieName = encodeURIComponent(name);
+	console.log(movieName);
+	return new Promise(function (fulfill, reject) {
+		request
+			.get(HOSTNAME + 't=' + movieName)
+			.on('data', function(res) {
+				fulfill(res)
+			})
+			.on('error', function(err) {
+				console.log(err + '  Was not able to find movie');
+				if (err) {
+					reject(err);
+				}
+			})
+	});
+}
 
 function validateMovie(id) {
 	return new Promise(function (fulfill, reject){
 		request
-			.get(HOSTNAME + id)
+			.get(HOSTNAME + 'i=' + id)
 			.on('data', function(res) {
 				//Resolve promise
 				console.log(res + 'DATA FROM SERVICES');
@@ -13,7 +31,7 @@ function validateMovie(id) {
 			})
 			.on('error', function(err) {
 				//Reject promise
-				console.log(err + '  ERROR FROM SERVICES');
+				console.log(err + '  Was not able to validate movie');
 				if (err) {
 					reject(err);
 				}
@@ -22,3 +40,4 @@ function validateMovie(id) {
 }
 
 module.exports.validateMovie = validateMovie;
+module.exports.findMovie = findMovie;

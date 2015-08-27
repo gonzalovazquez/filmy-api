@@ -6,14 +6,15 @@ var FilmModel = require("./model/film");
 var expressValidator = require('express-validator');
 var Log = require('log');
 var log = new Log('info');
-var omdb = require("./services/omdb.js");
+var omdb = require('./services/omdb.js');
+var validateRequest = require('./utils/validateRequest').validateRequest;
 
 app.use(cors());
 
 app.use(bodyParser.json({ extended: true }));
 app.use(expressValidator());
 
-app.use(express.static('../filmy/public'));
+app.use(express.static('public'));
 
 app.all('/', function(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
@@ -21,11 +22,28 @@ app.all('/', function(req, res, next) {
 	next();
  });
 
-app.post('/api/test', function(req, res) {
+ // Find film
+ app.get('/api', function (req, res) {
+	var titleName = req.query.title;
+ 	omdb.findMovie(req.query.title).then(function(response) {
+ 		var parsedResponse = JSON.parse(response);
+ 			try {
+ 				if (!parsedResponse.Response) {
+ 					return res.send(parsedResponse.Error);
+ 				} else {
+ 					return res.send(parsedResponse);
+ 				}
+ 			} catch (ex) {
+ 				return res.send(ex);
+ 			}
+ 	})
+ });
 
-	omdb.validateMovie(req.body.id).then(function(response){
+// Validate Film
+app.get('/api/validate', function(req, res) {
+	var id = req.query.id;
+	omdb.validateMovie(id).then(function(response){
 		var parsedResponse = JSON.parse(response);
-		console.log(parsedResponse);
 			try {
 				if (!parsedResponse.Response) {
 					return res.send(parsedResponse.Error);
@@ -36,7 +54,6 @@ app.post('/api/test', function(req, res) {
 				return res.send(ex);
 			}
 		});
-
 });
 
 //Read a list of films
@@ -75,9 +92,9 @@ app.post('/api/films', function(req, res) {
 				film = createFilmModel(FilmModel, req);
 
 				FilmModel.find({ imdbID: filmID }, function(err, obj) {
-		
+
 					filmExist = obj.length;
-					
+
 					if (!filmExist) {
 						film.save(function(err) {
 							if (!err) {
@@ -98,7 +115,7 @@ app.post('/api/films', function(req, res) {
 			log.info(error, 'Something wrong');
 			return res.status(400).send('Unable to validate movie');
 		}
-	});	
+	});
 });
 
 //Delete a film from collection
@@ -111,7 +128,7 @@ app.delete('/api/films/:id', function (req, res){
 			return FilmModel.remove(function (err) {
 				if (!err) {
 					return FilmModel.find(function(err, response) {
-						if (!err) { 
+						if (!err) {
 							return res.send(response)
 						} else {
 							return console.log(err);
@@ -130,22 +147,6 @@ app.delete('/api/films/:id', function (req, res){
 var server = app.listen(15715, function() {
 	console.log('CORS-enabled web server listening on port %d', server.address().port);
 });
-
-function validateRequest(req) {
-	var errors;
-
-	req.checkBody('title', 'Invalid title').notEmpty();
-	req.checkBody('year', 'Invalid year').notEmpty();
-	req.checkBody('rated', 'Invalid rated').notEmpty();
-	req.checkBody('released', 'Invalid released').notEmpty();
-	req.checkBody('runtime', 'Invalid runtime').notEmpty();
-
-	errors = req.validationErrors();
-
-	log.info(errors);
-
-	return errors;
-}
 
 function createFilmModel(Model, req) {
 	var film;
