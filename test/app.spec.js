@@ -5,6 +5,12 @@ var express = require('express');
 var nock = require("nock");
 var app = require('../app.js').getApp;
 
+var filmFixture = { title: 'Pulp Fiction', year: '1945', rated: 'R', released: '1999',
+	runtime: '90', genre: 'Drama', director: 'Tarantino', writer: 'Vazquez',
+	actors: "John Travolta", plot: 'wow', language: 'english', country: 'USA',
+	awards: 'All', poster: 'some url', metascore: "45", imdbRating: "90",
+	imdbVotes: "67", imdbID: "tt0110912", response: "true" };
+
 var createNock = function(status, response){
 	nock("http://www.omdbapi.com")
 	.filteringPath(function(path){
@@ -24,12 +30,14 @@ describe('filmy api', function() {
 	describe('GET /film with title', function() {
 
 		it('should respond with movie object', function(done) {
+			createNock(200, filmFixture);
 			request(app)
 				.get('/api/?title=Pulp Fiction')
 				.expect(200, done)
 		});
 
 		it('should validate film by id', function(done) {
+			createNock(200, "True");
 			request(app)
 				.get('/api/validate/?id=tt0110912')
 				.expect(200, done)
@@ -73,11 +81,7 @@ describe('filmy api', function() {
 			createNock(200, "True");
 			request(app)
 				.post('/api/films')
-				.send({ title: 'Pulp Fiction', year: '1945', rated: 'R', released: '1999',
-					runtime: '90', genre: 'Drama', director: 'Tarantino', writer: 'Vazquez',
-					actors: "John Travolta", plot: 'wow', language: 'english', country: 'USA',
-					awards: 'All', poster: 'some url', metascore: "45", imdbRating: "90",
-					imdbVotes: "67", imdbID: "tt0110912", response: "true" })
+				.send(filmFixture)
 				.expect(200)
 				.end(function(err, res) { // .end handles the response
 					if (err) {
@@ -91,11 +95,7 @@ describe('filmy api', function() {
 			createNock(200, "True");
 			request(app)
 				.post('/api/films')
-				.send({ title: 'Pulp Fiction', year: '1945', rated: 'R', released: '1999',
-					runtime: '90', genre: 'Drama', director: 'Tarantino', writer: 'Vazquez',
-					actors: "Brad Pitt", plot: 'wow', language: 'english', country: 'USA',
-					awards: 'All', poster: 'some url', metascore: "45", imdbRating: "90",
-					imdbVotes: "67", imdbID: "tt0110912", response: "true" })
+				.send(filmFixture)
 				.expect(401)
 				.end(function(err, res) { // .end handles the response
 					if (err) {
@@ -128,11 +128,7 @@ describe('filmy api', function() {
 
 			request(app)
 				.post('/api/films')
-				.send({ title: 'Pulp Fiction', year: '1945', rated: 'R', released: '1999',
-					runtime: '90', genre: 'Drama', director: 'Tarantino', writer: 'Vazquez',
-					actors: "John Travolta", plot: 'wow', language: 'english', country: 'USA',
-					awards: 'All', poster: 'some url', metascore: "45", imdbRating: "90",
-					imdbVotes: "67", imdbID: film_id, response: "true" })
+				.send(filmFixture)
 				.end(function(err, res) { // .end handles the response
 					if (err) {
 						return done(err);
