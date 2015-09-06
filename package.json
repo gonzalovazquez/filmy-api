@@ -6,8 +6,8 @@
   "main": "run.js",
   "private": true,
   "scripts": {
-    "start": "forever start run.js",
-    "stop": "forever stop run.js",
+    "start": "forever app.js",
+    "stop": "forever app.js",
     "test": "node node_modules/mocha/bin/mocha"
   },
   "contributors": [
