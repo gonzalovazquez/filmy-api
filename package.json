@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "author": "Gonzalo Vazquez",
   "description": "API Filmy",
+  "main": "run.js",
   "private": true,
   "scripts": {
     "start": "forever start run.js",
@@ -37,5 +38,8 @@
     "mongoose": "^4.0.1",
     "promise": "^7.0.0",
     "request": "^2.55.0"
-  }
+  },
+   "engines": {
+      "node": "0.10.x"
+   }
 }
