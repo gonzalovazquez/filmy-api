@@ -1,0 +1,9 @@
+{
+  "firebase": "filmy-api",
+  "public": "public",
+  "ignore": [
+    "firebase.json",
+    "**/.*",
+    "**/node_modules/**"
+  ]
+}
