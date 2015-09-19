@@ -86,7 +86,7 @@ app.post('/api/films', function(req, res) {
 			filmID = req.body.imdbID;
 
 	if (error) {
-		return res.status(400).send('Wrong format');
+		return res.status(400).send('Wrong format' + error);
 	}
 
 	omdb.validateMovie(filmID).then(function(response){
@@ -102,9 +102,7 @@ app.post('/api/films', function(req, res) {
 
 				FilmModel.find({ imdbID: filmID }, function(err, obj) {
 
-					filmExist = obj.length;
-
-					if (!filmExist) {
+					if (!obj.length) {
 						film.save(function(err) {
 							if (!err) {
 								log.info('POST films');
