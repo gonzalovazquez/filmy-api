@@ -101,7 +101,6 @@ app.post('/api/films', function(req, res) {
 				film = createFilmModel(FilmModel, req);
 
 				FilmModel.find({ imdbID: filmID }, function(err, obj) {
-
 					if (!obj.length) {
 						film.save(function(err) {
 							if (!err) {
@@ -128,16 +127,15 @@ app.post('/api/films', function(req, res) {
 //Delete a film from collection
 app.delete('/api/films/:id', function (req, res){
 	log.info('DELETE films');
-
 	return FilmModel.find({imdbID: req.params.id}, function (err, response) {
-
 		if (response.length) {
-			return FilmModel.remove(function (err) {
+			return FilmModel.remove({imdbID: req.params.id}, function (err) {
 				if (!err) {
 					return FilmModel.find(function(err, response) {
 						if (!err) {
 							return res.send(response)
 						} else {
+							log.info('Error returning movies');
 							return console.log(err);
 						}
 					});
