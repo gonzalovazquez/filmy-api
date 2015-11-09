@@ -2,10 +2,10 @@ var mongoose = require('mongoose');
 var databaseEndPoint = require('../config/config.js');
 var environment = process.argv[2] || 'production';
 
-var db = mongoose.connect(databaseEndPoint[environment]);
+var db = mongoose.connect('mongodb://localhost/filmy');
 
 //create schema for film
-var filmSchema = new mongoose.Schema({
+var FilmSchema = new mongoose.Schema({
 	title: String,
 	year: Number,
 	rated: String,
@@ -24,8 +24,17 @@ var filmSchema = new mongoose.Schema({
 	imdbRating: Number,
 	imdbVotes: Number,
 	imdbID: String,
-	response: Boolean
+	response: Boolean,
+});
+
+//create UserSchema for film
+var UserSchema = new mongoose.Schema({
+		email: String,
+		password: String,
+		token: String,
+		movies: [FilmSchema]
 });
 //compile schema to model
 
-module.exports = db.model('film', filmSchema, 'movies');
+module.exports = db.model('film', UserSchema, 'movies');
+//module.exports = db.model('UserSchema', UserSchema);

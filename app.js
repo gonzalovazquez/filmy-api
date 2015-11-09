@@ -3,7 +3,8 @@ var path = require('path');
 var app = express();
 var bodyParser = require('body-parser');
 var cors = require('cors');
-var FilmModel = require("./model/film");
+var jwt = require('jsonwebtoken');
+var User = require("./model/film");
 var expressValidator = require('express-validator');
 var Log = require('log');
 var log = new Log('info');
@@ -30,6 +31,97 @@ app.all('/', function(req, res, next) {
  app.get('/', function(req, res) {
  	res.render('pages/index');
 });
+
+//Authenticate user
+app.post('/authenticate', function(req, res) {
+    User.findOne({email: req.body.email, password: req.body.password}, function(err, user) {
+        if (err) {
+            res.json({
+                type: false,
+                data: "Error occured: " + err
+            });
+        } else {
+            if (user) {
+               res.json({
+                    type: true,
+                    data: user,
+                    token: user.token
+                });
+            } else {
+                res.json({
+                    type: false,
+                    data: "Incorrect email/password"
+                });
+            }
+        }
+    });
+});
+
+//Sign In
+app.post('/signin', function(req, res) {
+		console.log(req.body.email, 'EMAIL');
+		console.log(req.body.password, 'PASSWORD');
+    User.findOne({email: req.body.email, password: req.body.password}, function(err, user) {
+        if (err) {
+            res.json({
+                type: false,
+                data: "Error occured: " + err
+            });
+        } else {
+            if (user) {
+								log.info(user);
+                res.json({
+                    type: false,
+                    data: "User already exists!"
+                });
+            } else {
+                var userModel = new User();
+                userModel.email = req.body.email;
+                userModel.password = req.body.password;
+                userModel.save(function(err, user) {
+                    user.token = jwt.sign(user, 'secret');
+                    user.save(function(err, user1) {
+                        res.status(200).json({
+                            type: true,
+                            data: user1,
+                            token: user1.token
+                        }, function(err) {
+													res.status(500).json(err);
+												});
+                    });
+                })
+            }
+        }
+    });
+});
+
+//Check User
+app.get('/me', ensureAuthorized, function(req, res) {
+    User.findOne({token: req.token}, function(err, user) {
+        if (err) {
+            res.json({
+                type: false,
+                data: "Error occured: " + err
+            });
+        } else {
+            res.json({
+                type: true,
+                data: user
+            });
+        }
+    });
+});
+
+function ensureAuthorized(req, res, next) {
+    var bearerHeader = req.headers["authorization"];
+    if (typeof bearerHeader !== 'undefined') {
+        var bearer = bearerHeader;
+        req.token = bearer;
+        next();
+    } else {
+        res.send(403);
+    }
+}
 
  // Find film
  app.get('/api', function (req, res) {
@@ -79,7 +171,7 @@ app.get('/api/films', function(req, res) {
 });
 
 // Create a Single Film
-app.post('/api/films', function(req, res) {
+app.post('/api/films', ensureAuthorized, function(req, res) {
 	var film,
 			error = validateRequest(req),
 			filmExist = false,
@@ -89,39 +181,81 @@ app.post('/api/films', function(req, res) {
 		return res.status(400).send('Wrong format' + error);
 	}
 
-	omdb.validateMovie(filmID).then(function(response){
-		var parsedResponse = JSON.parse(response);
+	User.findOne({token: req.token}, function(err, user) {
+		if (!err) {
 
-		try {
-			if (parsedResponse.Response === "False") {
-				log.info('Invalid movie');
-				log.info(parsedResponse.Error);
-				return res.status(400).send('Invalid movie');
-			} else {
-				film = createFilmModel(FilmModel, req);
+			log.info(user, 'USER');
 
-				FilmModel.find({ imdbID: filmID }, function(err, obj) {
-					if (!obj.length) {
-						film.save(function(err) {
-							if (!err) {
-								log.info('POST films');
-								return res.status(200).send(film);
-							} else {
-								log.info(err);
-								return res.status(404).send('Not available');
-							}
-						});
-					} else {
-						return res.status(401).send('Film already exists');
-					}
-				});
+			var film = {
+				title: req.body.title,
+				year: req.body.year,
+				rated: req.body.rated,
+				released: req.body.released,
+				runtime: req.body.runtime,
+				genre: req.body.genre,
+				director: req.body.director,
+				writer: req.body.writer,
+				actors: req.body.actors,
+				plot: req.body.plot,
+				language: req.body.language,
+				country: req.body.country,
+				awards: req.body.awards,
+				poster: req.body.poster,
+				metascore: req.body.metascore,
+				imdbRating: req.body.imdbRating,
+				imdbVotes: req.body.imdbVotes,
+				imdbID: req.body.imdbID,
+				response: req.body.response
+			};
 
-			}
-		} catch (error) {
-			log.info(error, 'Something wrong');
-			return res.status(400).send('Unable to validate movie');
+			user.movies.push(film);
+
+			user.save(function (err) {
+			  if (!err) {
+					console.log('Success!');
+				} else {
+					log.error(err);
+				}
+			});
+
+		} else {
+			log.info(err);
 		}
 	});
+
+	// omdb.validateMovie(filmID).then(function(response){
+	// 	var parsedResponse = JSON.parse(response);
+	//
+	// 	try {
+	// 		if (parsedResponse.Response === "False") {
+	// 			log.info('Invalid movie');
+	// 			log.info(parsedResponse.Error);
+	// 			return res.status(400).send('Invalid movie');
+	// 		} else {
+	// 			film = createFilmModel(FilmModel, req);
+	//
+	// 			FilmModel.find({ imdbID: filmID }, function(err, obj) {
+	// 				if (!obj.length) {
+	// 					film.save(function(err) {
+	// 						if (!err) {
+	// 							log.info('POST films');
+	// 							return res.status(200).send(film);
+	// 						} else {
+	// 							log.info(err);
+	// 							return res.status(404).send('Not available');
+	// 						}
+	// 					});
+	// 				} else {
+	// 					return res.status(401).send('Film already exists');
+	// 				}
+	// 			});
+	//
+	// 		}
+	// 	} catch (error) {
+	// 		log.info(error, 'Something wrong');
+	// 		return res.status(400).send('Unable to validate movie');
+	// 	}
+	// });
 });
 
 //Delete a film from collection
@@ -150,7 +284,12 @@ app.delete('/api/films/:id', function (req, res){
 });
 
 var server = app.listen(app.get('port'), function() {
+	console.log(process.argv[2]);
 	console.log('CORS-enabled web server listening on port %d', server.address().port);
+});
+
+process.on('uncaughtException', function(err) {
+    console.log(err);
 });
 
 function createFilmModel(Model, req) {
@@ -177,7 +316,7 @@ function createFilmModel(Model, req) {
 		imdbID: req.body.imdbID,
 		response: req.body.response
 	});
-
+	console.log(film , 'FILM');
 	return film;
 }
 
