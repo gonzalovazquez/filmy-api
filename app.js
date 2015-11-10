@@ -100,7 +100,7 @@ app.post('/signin', function(req, res) {
                             token: user1.token
                         });
                     });
-                })
+                });
             }
         }
     });
@@ -148,7 +148,7 @@ function ensureAuthorized(req, res, next) {
  			} catch (ex) {
  				return res.send(ex);
  			}
- 	})
+ 	});
  });
 
 // Validate Film
@@ -171,7 +171,7 @@ app.get('/api/validate', function(req, res) {
 // Create a Single Film
 app.post('/api/films', ensureAuthorized, function(req, res) {
 	var film,
-			error = validateRequest(req),
+			error = validateRequest.validateMovie(req),
 			filmExist = false,
 			filmID = req.body.imdbID;
 
@@ -182,78 +182,45 @@ app.post('/api/films', ensureAuthorized, function(req, res) {
 	User.findOne({token: req.token}, function(err, user) {
 		if (!err) {
 
-			log.info(user, 'USER');
+			film = createFilmModel(req);
 
-			var film = {
-				title: req.body.title,
-				year: req.body.year,
-				rated: req.body.rated,
-				released: req.body.released,
-				runtime: req.body.runtime,
-				genre: req.body.genre,
-				director: req.body.director,
-				writer: req.body.writer,
-				actors: req.body.actors,
-				plot: req.body.plot,
-				language: req.body.language,
-				country: req.body.country,
-				awards: req.body.awards,
-				poster: req.body.poster,
-				metascore: req.body.metascore,
-				imdbRating: req.body.imdbRating,
-				imdbVotes: req.body.imdbVotes,
-				imdbID: req.body.imdbID,
-				response: req.body.response
-			};
+			omdb.validateMovie(film.imdbID).then(function(response){
+				var parsedResponse = JSON.parse(response);
 
-			user.movies.push(film);
-
-			user.save(function (err) {
-			  if (!err) {
-					console.log('Success!');
-				} else {
-					log.error(err);
+				try {
+					if (parsedResponse.Response === "False") {
+						log.info('Invalid movie');
+						log.info(parsedResponse.Error);
+						return res.status(400).send('Invalid movie');
+					} else {
+							User.find({'movies.imdbID': film.imdbID}, function(err, movieFound) {
+									log.info(!movieFound.length);
+									if (!movieFound.length) {
+										user.movies.push(film);
+										user.save(function (err) {
+											if (!err) {
+													log.info('POST films');
+													return res.status(200).send(user);
+											} else {
+													log.error(err);
+													return res.status(404).send('Not available');
+											}
+										});
+									} else {
+										return res.status(401).send('Movie already exists');
+									}
+							});
+					}
+				} catch (error) {
+					log.info(error, 'Something wrong');
+					return res.status(400).send('Unable to validate movie');
 				}
 			});
-
 		} else {
 			log.info(err);
+			return res.status(500).send('Not available');
 		}
 	});
-
-	// omdb.validateMovie(filmID).then(function(response){
-	// 	var parsedResponse = JSON.parse(response);
-	//
-	// 	try {
-	// 		if (parsedResponse.Response === "False") {
-	// 			log.info('Invalid movie');
-	// 			log.info(parsedResponse.Error);
-	// 			return res.status(400).send('Invalid movie');
-	// 		} else {
-	// 			film = createFilmModel(FilmModel, req);
-	//
-	// 			FilmModel.find({ imdbID: filmID }, function(err, obj) {
-	// 				if (!obj.length) {
-	// 					film.save(function(err) {
-	// 						if (!err) {
-	// 							log.info('POST films');
-	// 							return res.status(200).send(film);
-	// 						} else {
-	// 							log.info(err);
-	// 							return res.status(404).send('Not available');
-	// 						}
-	// 					});
-	// 				} else {
-	// 					return res.status(401).send('Film already exists');
-	// 				}
-	// 			});
-	//
-	// 		}
-	// 	} catch (error) {
-	// 		log.info(error, 'Something wrong');
-	// 		return res.status(400).send('Unable to validate movie');
-	// 	}
-	// });
 });
 
 //Delete a film from collection
@@ -265,7 +232,7 @@ app.delete('/api/films/:id', function (req, res){
 				if (!err) {
 					return FilmModel.find(function(err, response) {
 						if (!err) {
-							return res.send(response)
+							return res.send(response);
 						} else {
 							log.info('Error returning movies');
 							return console.log(err);
@@ -290,10 +257,10 @@ process.on('uncaughtException', function(err) {
     console.log(err);
 });
 
-function createFilmModel(Model, req) {
+function createFilmModel(req) {
 	var film;
 
-	film = new Model({
+	film = {
 		title: req.body.title,
 		year: req.body.year,
 		rated: req.body.rated,
@@ -313,8 +280,10 @@ function createFilmModel(Model, req) {
 		imdbVotes: req.body.imdbVotes,
 		imdbID: req.body.imdbID,
 		response: req.body.response
-	});
+	};
+
 	console.log(film , 'FILM');
+
 	return film;
 }
 

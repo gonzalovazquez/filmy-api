@@ -74,7 +74,7 @@ describe('user', function() {
 
 	});
 
-	describe.only('GET /me', function() {
+	describe('GET /me', function() {
 
 		var token;
 
@@ -109,7 +109,7 @@ describe('user', function() {
 });
 
 
-describe('filmy api', function() {
+describe('film', function() {
 
 	describe('GET /film with title', function() {
 
@@ -129,12 +129,28 @@ describe('filmy api', function() {
 
 	});
 
-	describe('POST /api/films', function() {
+	describe.only('POST /api/films', function() {
+
+		var token;
+
+		before(function(done) {
+			request(app)
+				.post('/authenticate')
+				.send({email: 'example11@gmail.com', password: 'secret'})
+				.end(function(err, res) { // .end handles the response
+					if (err) {
+						return done(err);
+					}
+					token = res.body.token;
+				done();
+				});
+		});
 
 		it('should not save a movie if it does not have a valid imdbID', function(done){
 			createNock(400, "False");
 			request(app)
 				.post('/api/films')
+				.set('authorization', token)
 				.send({ title: 'Pulp Fiction', year: '1945', rated: 'R', released: '1999',
 					runtime: '90', genre: 'Drama', director: 'Tarantino', writer: 'Vazquez',
 					actors: "Brad Pitt", plot: 'wow', language: 'english', country: 'USA',
@@ -153,6 +169,7 @@ describe('filmy api', function() {
 			createNock(200, "True");
 			request(app)
 				.post('/api/films')
+				.set('authorization', token)
 				.send(filmFixture)
 				.expect(200)
 				.end(function(err, res) { // .end handles the response
@@ -167,6 +184,7 @@ describe('filmy api', function() {
 			createNock(200, "True");
 			request(app)
 				.post('/api/films')
+				.set('authorization', token)
 				.send(filmFixture)
 				.expect(401)
 				.end(function(err, res) { // .end handles the response
@@ -180,6 +198,7 @@ describe('filmy api', function() {
 		it('should not save a movie if the json object is invalid', function(done){
 			request(app)
 				.post('/api/films')
+				.set('authorization', token)
 				.send("Bad Stuff!!")
 				.expect(400)
 				.end(function(err, res) { // .end handles the response
