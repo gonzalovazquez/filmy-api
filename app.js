@@ -4,7 +4,7 @@ var app = express();
 var bodyParser = require('body-parser');
 var cors = require('cors');
 var jwt = require('jsonwebtoken');
-var User = require("./model/film");
+var User = require("./model/user");
 var expressValidator = require('express-validator');
 var Log = require('log');
 var log = new Log('info');
@@ -16,24 +16,30 @@ app.use(bodyParser.json({ extended: true }));
 app.use(expressValidator());
 app.set('port', (process.env.PORT || 5000));
 
-app.use(express.static(__dirname + '/public'));
 // views is directory for all template files
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 
-
+// allowing origin to all incoming connections
 app.all('/', function(req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	next();
  });
 
+// rendering index page
  app.get('/', function(req, res) {
  	res.render('pages/index');
 });
 
 //Authenticate user
 app.post('/authenticate', function(req, res) {
+		var error = validateRequest.validateUser(req);
+
+		if (error) {
+			return res.status(400).send('Wrong format' + error);
+		}
+
     User.findOne({email: req.body.email, password: req.body.password}, function(err, user) {
         if (err) {
             res.json({
@@ -42,13 +48,13 @@ app.post('/authenticate', function(req, res) {
             });
         } else {
             if (user) {
-               res.json({
+               res.status(200).json({
                     type: true,
                     data: user,
                     token: user.token
                 });
             } else {
-                res.json({
+                res.status(401).json({
                     type: false,
                     data: "Incorrect email/password"
                 });
@@ -59,18 +65,22 @@ app.post('/authenticate', function(req, res) {
 
 //Sign In
 app.post('/signin', function(req, res) {
-		console.log(req.body.email, 'EMAIL');
-		console.log(req.body.password, 'PASSWORD');
+
+	var error = validateRequest.validateUser(req);
+
+	if (error) {
+		return res.status(400).send('Wrong format' + error);
+	}
+
     User.findOne({email: req.body.email, password: req.body.password}, function(err, user) {
         if (err) {
-            res.json({
+            res.status(401).json({
                 type: false,
                 data: "Error occured: " + err
             });
         } else {
             if (user) {
-								log.info(user);
-                res.json({
+                res.status(401).json({
                     type: false,
                     data: "User already exists!"
                 });
@@ -81,13 +91,14 @@ app.post('/signin', function(req, res) {
                 userModel.save(function(err, user) {
                     user.token = jwt.sign(user, 'secret');
                     user.save(function(err, user1) {
+												if (err) {
+													 return res.status(500).json(err);
+												}
                         res.status(200).json({
                             type: true,
                             data: user1,
                             token: user1.token
-                        }, function(err) {
-													res.status(500).json(err);
-												});
+                        });
                     });
                 })
             }
@@ -98,13 +109,13 @@ app.post('/signin', function(req, res) {
 //Check User
 app.get('/me', ensureAuthorized, function(req, res) {
     User.findOne({token: req.token}, function(err, user) {
-        if (err) {
-            res.json({
+        if (err || user === null) {
+            res.status(401).json({
                 type: false,
                 data: "Error occured: " + err
             });
         } else {
-            res.json({
+            res.status(200).json({
                 type: true,
                 data: user
             });
@@ -155,19 +166,6 @@ app.get('/api/validate', function(req, res) {
 				return res.send(ex);
 			}
 		});
-});
-
-//Read a list of films
-app.get('/api/films', function(req, res) {
-	return FilmModel.find(function(err, films) {
-		if (!err) {
-			log.info('GET films');
-			return res.send(films);
-		} else {
-			log.info(err);
-			return res.status(404).send('Not available');
-		}
-	});
 });
 
 // Create a Single Film

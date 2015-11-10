@@ -24,6 +24,90 @@ var createNock = function(status, response){
 
 nock.enableNetConnect();
 
+describe('user', function() {
+
+	describe('POST /signin', function() {
+
+			it('should return 400 if user credentials are missing', function(done) {
+				request(app)
+					.post('/signin')
+					.expect(400, done);
+			});
+
+			it('should create a user', function(done) {
+					request(app)
+						.post('/signin')
+						.send({email: 'example11@gmail.com', password: 'secret'})
+						.expect(200, done);
+			});
+
+			it('should return the user if it already exists', function(done) {
+					request(app)
+						.post('/signin')
+						.send({email: 'example11@gmail.com', password: 'secret'})
+						.expect(401, done);
+			});
+
+		});
+
+	describe('POST /authenticate', function() {
+
+		it('should return 400 if user credentials are not entered properly', function(done){
+				request(app)
+					.post('/authenticate')
+					.expect(400, done);
+		});
+
+		it('should return 200 when user authenticates', function(done){
+				request(app)
+					.post('/authenticate')
+					.send({email: 'example11@gmail.com', password: 'secret'})
+					.expect(200, done)
+		});
+
+		it('should return 401 when credentials are wrong', function(done){
+				request(app)
+					.post('/authenticate')
+					.send({email: 'example11@gmail.com', password: 'wrongpassword'})
+					.expect(401, done)
+		});
+
+	});
+
+	describe.only('GET /me', function() {
+
+		var token;
+
+		before(function(done) {
+			request(app)
+				.post('/authenticate')
+				.send({email: 'example11@gmail.com', password: 'secret'})
+				.end(function(err, res) { // .end handles the response
+					if (err) {
+						return done(err);
+					}
+					token = res.body.token;
+				done();
+				});
+		});
+
+		it('should return the user if I pass the correct token', function(done) {
+				request(app)
+					.get('/me')
+					.set('authorization', token)
+					.expect(200, done);
+		});
+
+		it('should return an error if wrong token is sent', function(done) {
+			request(app)
+				.get('/me')
+				.set('authorization', '123424')
+				.expect(401, done);
+		});
+
+	});
+});
+
 
 describe('filmy api', function() {
 
@@ -33,25 +117,13 @@ describe('filmy api', function() {
 			createNock(200, filmFixture);
 			request(app)
 				.get('/api/?title=Pulp Fiction')
-				.expect(200, done)
+				.expect(200, done);
 		});
 
 		it('should validate film by id', function(done) {
 			createNock(200, "True");
 			request(app)
 				.get('/api/validate/?id=tt0110912')
-				.expect(200, done)
-		});
-
-	});
-
-	describe('GET /films', function(){
-
-		it('should response with a json object of films', function(done){
-			request(app)
-				.get('/api/films')
-				.set('Accept', 'application/json')
-				.expect('Content-Type', /json/)
 				.expect(200, done);
 		});
 

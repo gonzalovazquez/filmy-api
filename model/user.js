@@ -2,9 +2,11 @@ var mongoose = require('mongoose');
 var databaseEndPoint = require('../config/config.js');
 var environment = process.argv[2] || 'production';
 
-var db = mongoose.connect('mongodb://localhost/filmy');
+// connect to database
+// var db = mongoose.connect(databaseEndPoint[environment]);
 
-//create schema for film
+var db = mongoose.connect(databaseEndPoint['development']);
+// create schema for film
 var FilmSchema = new mongoose.Schema({
 	title: String,
 	year: Number,
@@ -27,14 +29,13 @@ var FilmSchema = new mongoose.Schema({
 	response: Boolean,
 });
 
-//create UserSchema for film
+// create UserSchema for film
 var UserSchema = new mongoose.Schema({
 		email: String,
 		password: String,
 		token: String,
 		movies: [FilmSchema]
 });
-//compile schema to model
 
+// compile schema to model
 module.exports = db.model('film', UserSchema, 'movies');
-//module.exports = db.model('UserSchema', UserSchema);

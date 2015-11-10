@@ -6,8 +6,7 @@ filmy-api
 
 API Endpoint for Filmy
 
-
-node app -PRODUCTION
+node app development
 mongod --dbpath=/Users/gv/Projects/mongodb-2.6.3/data/
 
 
