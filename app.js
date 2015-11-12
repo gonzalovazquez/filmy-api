@@ -194,7 +194,7 @@ app.post('/api/films', ensureAuthorized, function(req, res) {
 						return res.status(400).send('Invalid movie');
 					} else {
 							User.find({'movies.imdbID': film.imdbID}, function(err, movieFound) {
-									log.info(!movieFound.length);
+
 									if (!movieFound.length) {
 										user.movies.push(film);
 										user.save(function (err) {
@@ -224,32 +224,36 @@ app.post('/api/films', ensureAuthorized, function(req, res) {
 });
 
 //Delete a film from collection
-app.delete('/api/films/:id', function (req, res){
+app.delete('/api/films/:id', ensureAuthorized, function (req, res){
 	log.info('DELETE films');
-	return FilmModel.find({imdbID: req.params.id}, function (err, response) {
-		if (response.length) {
-			return FilmModel.remove({imdbID: req.params.id}, function (err) {
-				if (!err) {
-					return FilmModel.find(function(err, response) {
-						if (!err) {
-							return res.send(response);
-						} else {
-							log.info('Error returning movies');
-							return console.log(err);
-						}
-					});
-				} else {
-					console.log(err);
-				}
-			});
-		} else {
-			return res.status(400).send('Bad Request');
+	//TODO: Return 400 if movie does not exist in user's library 
+	return User.findOneAndUpdate({token: req.token}, {
+		$pull: {
+			movies: {imdbID: req.params.id}
 		}
+	}, function(err, data) {
+			if (err) {
+				return res.status(400).send(err);
+			}
+			console.log(User);
+			return User.findOne({token: req.token}, function(err, user) {
+					console.log(err , user);
+	        if (err || user === null) {
+	            return res.status(401).json({
+	                type: false,
+	                data: "Error occured: " + err
+	            });
+	        } else {
+	            return res.status(200).json({
+	                type: true,
+	                data: user
+	            });
+	        }
+	    });
 	});
 });
 
 var server = app.listen(app.get('port'), function() {
-	console.log(process.argv[2]);
 	console.log('CORS-enabled web server listening on port %d', server.address().port);
 });
 
@@ -281,8 +285,6 @@ function createFilmModel(req) {
 		imdbID: req.body.imdbID,
 		response: req.body.response
 	};
-
-	console.log(film , 'FILM');
 
 	return film;
 }
