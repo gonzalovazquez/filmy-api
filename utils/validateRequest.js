@@ -21,6 +21,7 @@ var validateRequest = {
 	validateUser: function(req) {
 		var errors;
 
+		req.checkBody('username', 'Invalid username').notEmpty();
 		req.checkBody('email', 'Invalid email').notEmpty();
 		req.checkBody('password', 'Invalid password').notEmpty();
 

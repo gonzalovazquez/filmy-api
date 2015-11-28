@@ -87,6 +87,7 @@ app.post('/signin', function(req, res) {
                 });
             } else {
                 var userModel = new User();
+								userModel.username = req.body.username;
                 userModel.email = req.body.email;
                 userModel.password = req.body.password;
                 userModel.save(function(err, user) {

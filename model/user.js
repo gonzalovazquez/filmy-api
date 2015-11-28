@@ -30,6 +30,7 @@ var FilmSchema = new mongoose.Schema({
 
 // create UserSchema for film
 var UserSchema = new mongoose.Schema({
+		username: String,
 		email: String,
 		password: String,
 		token: String,
