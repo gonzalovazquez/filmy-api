@@ -12,6 +12,7 @@ var filmFixture = { title: 'Pulp Fiction', year: '1945', rated: 'R', released: '
 	imdbVotes: "67", imdbID: "tt0110912", response: "true" };
 
 var globalUser = {
+	username: 'gonzalovazquez',
 	email : 'example101@gmail.com',
 	password: 'secret'
 };
@@ -34,7 +35,7 @@ describe('create global user for test', function() {
 	it('should create a user', function(done) {
 			request(app)
 				.post('/signin')
-				.send({email: globalUser.email, password: globalUser.password})
+				.send({username: globalUser.username, email: globalUser.email, password: globalUser.password})
 				.end(done);
 	});
 
@@ -51,17 +52,35 @@ describe('user', function() {
 			});
 
 			it('should create a user', function(done) {
-				 var randomInt = Math.round(Math.random() * 100);
+				 var randomInt = Math.round(Math.random() * 100),
+				 			emailAddress = 'example' + randomInt + '@gmail.com';
+
 					request(app)
 						.post('/signin')
-						.send({email: 'example' + randomInt + '@gmail.com', password: globalUser.password})
-						.expect(200, done);
+						.send({username: 'ricardo', email: emailAddress, password: globalUser.password})
+						.expect(200)
+						.end(function(err, res) {
+							assert.equal(res.body.data.username, 'ricardo');
+							assert.equal(res.body.data.email, emailAddress);
+							assert.equal(res.body.data.password, globalUser.password);
+							done();
+						});
+			});
+
+			it('should return an error if one mandantory field is missing', function(done) {
+				 var randomInt = Math.round(Math.random() * 100),
+				 			emailAddress = 'example' + randomInt + '@gmail.com';
+
+					request(app)
+						.post('/signin')
+						.send({email: emailAddress, password: globalUser.password})
+						.expect(400, done);
 			});
 
 			it('should return the user if it already exists', function(done) {
 					request(app)
 						.post('/signin')
-						.send({email: globalUser.email, password: globalUser.password})
+						.send({username: globalUser.username, email: globalUser.email, password: globalUser.password})
 						.expect(401, done);
 			});
 
@@ -78,14 +97,14 @@ describe('user', function() {
 		it('should return 200 when user authenticates', function(done){
 				request(app)
 					.post('/authenticate')
-					.send({email: globalUser.email, password: globalUser.password})
+					.send({username: globalUser.username, email: globalUser.email, password: globalUser.password})
 					.expect(200, done)
 		});
 
 		it('should return 401 when credentials are wrong', function(done){
 				request(app)
 					.post('/authenticate')
-					.send({email: 'example11@gmail.com', password: 'wrongpassword'})
+					.send({username: globalUser.username, email: globalUser.email, password: 'wrongpassword'})
 					.expect(401, done)
 		});
 
@@ -98,7 +117,7 @@ describe('user', function() {
 		before(function(done) {
 			request(app)
 				.post('/authenticate')
-				.send({email: globalUser.email, password: globalUser.password})
+				.send({username: globalUser.username, email: globalUser.email, password: globalUser.password})
 				.end(function(err, res) { // .end handles the response
 					if (err) {
 						return done(err);
@@ -153,7 +172,7 @@ describe('film', function() {
 		before(function(done) {
 			request(app)
 				.post('/authenticate')
-				.send({email: globalUser.email, password: globalUser.password})
+				.send({username: globalUser.username, email: globalUser.email, password: globalUser.password})
 				.end(function(err, res) { // .end handles the response
 					if (err) {
 						return done(err);
@@ -238,7 +257,7 @@ describe('film', function() {
 
 			request(app)
 				.post('/authenticate')
-				.send({email: globalUser.email, password: globalUser.password})
+				.send({username: globalUser.username, email: globalUser.email, password: globalUser.password})
 				.end(function(err, res) { // .end handles the response
 					if (err) {
 						return done(err);
