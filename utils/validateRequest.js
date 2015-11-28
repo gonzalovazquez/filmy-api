@@ -5,6 +5,7 @@ var validateRequest = {
 	validateMovie: function(req) {
 		var errors;
 
+		req.checkBody('imdbID', 'Invalid ID').notEmpty();
 		req.checkBody('title', 'Invalid title').notEmpty();
 		req.checkBody('year', 'Invalid year').notEmpty();
 		req.checkBody('rated', 'Invalid rated').notEmpty();
@@ -29,35 +30,5 @@ var validateRequest = {
 		return errors;
 	}
 };
-// Validate movie request
-// function validateRequest(req) {
-// 	var errors;
-//
-// 	req.checkBody('title', 'Invalid title').notEmpty();
-// 	req.checkBody('year', 'Invalid year').notEmpty();
-// 	req.checkBody('rated', 'Invalid rated').notEmpty();
-// 	req.checkBody('released', 'Invalid released').notEmpty();
-// 	req.checkBody('runtime', 'Invalid runtime').notEmpty();
-//
-// 	errors = req.validationErrors();
-//
-// 	log.info(JSON.stringify(errors));
-//
-// 	return errors;
-// }
-
-// Validate user request
-// funcion validateUser(req) {
-// 	var errors;
-//
-// 	req.checkBody('title', 'Invalid title').notEmpty();
-// 	req.checkBody('year', 'Invalid year').notEmpty();
-//
-// 	errors = req.validationErrors();
-// 	log.info(JSON.stringify(errors));
-//
-// 	return errors;
-// }
 
 module.exports.validateRequest = validateRequest;
-//module.exports.validateUser = validateUser;

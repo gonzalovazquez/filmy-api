@@ -11,6 +11,11 @@ var filmFixture = { title: 'Pulp Fiction', year: '1945', rated: 'R', released: '
 	awards: 'All', poster: 'some url', metascore: "45", imdbRating: "90",
 	imdbVotes: "67", imdbID: "tt0110912", response: "true" };
 
+var globalUser = {
+	email : 'example101@gmail.com',
+	password: 'secret'
+};
+
 var createNock = function(status, response){
 	nock("http://www.omdbapi.com")
 	.filteringPath(function(path){
@@ -24,6 +29,17 @@ var createNock = function(status, response){
 
 nock.enableNetConnect();
 
+describe('create global user for test', function() {
+
+	it('should create a user', function(done) {
+			request(app)
+				.post('/signin')
+				.send({email: globalUser.email, password: globalUser.password})
+				.end(done);
+	});
+
+});
+
 describe('user', function() {
 
 	describe('POST /signin', function() {
@@ -35,16 +51,17 @@ describe('user', function() {
 			});
 
 			it('should create a user', function(done) {
+				 var randomInt = Math.round(Math.random() * 100);
 					request(app)
 						.post('/signin')
-						.send({email: 'example11@gmail.com', password: 'secret'})
+						.send({email: 'example' + randomInt + '@gmail.com', password: globalUser.password})
 						.expect(200, done);
 			});
 
 			it('should return the user if it already exists', function(done) {
 					request(app)
 						.post('/signin')
-						.send({email: 'example11@gmail.com', password: 'secret'})
+						.send({email: globalUser.email, password: globalUser.password})
 						.expect(401, done);
 			});
 
@@ -61,7 +78,7 @@ describe('user', function() {
 		it('should return 200 when user authenticates', function(done){
 				request(app)
 					.post('/authenticate')
-					.send({email: 'example11@gmail.com', password: 'secret'})
+					.send({email: globalUser.email, password: globalUser.password})
 					.expect(200, done)
 		});
 
@@ -81,7 +98,7 @@ describe('user', function() {
 		before(function(done) {
 			request(app)
 				.post('/authenticate')
-				.send({email: 'example11@gmail.com', password: 'secret'})
+				.send({email: globalUser.email, password: globalUser.password})
 				.end(function(err, res) { // .end handles the response
 					if (err) {
 						return done(err);
@@ -136,7 +153,7 @@ describe('film', function() {
 		before(function(done) {
 			request(app)
 				.post('/authenticate')
-				.send({email: 'example11@gmail.com', password: 'secret'})
+				.send({email: globalUser.email, password: globalUser.password})
 				.end(function(err, res) { // .end handles the response
 					if (err) {
 						return done(err);
@@ -211,41 +228,35 @@ describe('film', function() {
 
 	});
 
-	describe.only('DELETE /api/films', function() {
+	describe('DELETE /api/films', function() {
 		var film_id = 'tt0110912',
-				token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfX3YiOjAsInBhc3N3b3JkIjoic2VjcmV0IiwiZW1haWwiOiJleGFtcGxlMTFAZ21haWwuY29tIiwiX2lkIjoiNTY0MjliMDRiMWE2YzRhOTE3MjI1MTQ1IiwibW92aWVzIjpbXX0.u54mmqmFD8oGYGky8gDFar-bf26ig7g03vjsD_LLgSY';
+				token;
 
 	  before(function(done) {
+
 			createNock(200, "True");
 
 			request(app)
-				.post('/api/films')
-				.set('authorization', token)
-				.send(filmFixture)
+				.post('/authenticate')
+				.send({email: globalUser.email, password: globalUser.password})
 				.end(function(err, res) { // .end handles the response
 					if (err) {
 						return done(err);
 					}
-					done();
+					token = res.body.token;
+				done();
 				});
 	  });
 
 		it('should be able to delete move by imdbID', function(done) {
 			var url = '/api/films/'+ film_id;
-
 			request(app)
 					.delete(url)
 					.set('authorization', token)
 					.expect(200, done);
 		});
 
-		// it('should return 400 if film is wrong', function(done) {
-		// 	createNock(200, "True");
-		// 	request(app)
-		// 			.delete('/api/films/12345678')
-		// 			.set('authorization', token)
-		// 			.expect(400, done);
-		// });
+		//TODO: test for returning  400 if film is not found or available
 
 	});
 

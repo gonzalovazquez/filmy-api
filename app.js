@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 var cors = require('cors');
 var jwt = require('jsonwebtoken');
 var User = require("./model/user");
+var Film = require("./model/film");
 var expressValidator = require('express-validator');
 var Log = require('log');
 var log = new Log('info');
@@ -32,7 +33,7 @@ app.all('/', function(req, res, next) {
  	res.render('pages/index');
 });
 
-//Authenticate user
+// Authenticate user
 app.post('/authenticate', function(req, res) {
 		var error = validateRequest.validateUser(req);
 
@@ -63,7 +64,7 @@ app.post('/authenticate', function(req, res) {
     });
 });
 
-//Sign In
+// Sign In
 app.post('/signin', function(req, res) {
 
 	var error = validateRequest.validateUser(req);
@@ -106,7 +107,7 @@ app.post('/signin', function(req, res) {
     });
 });
 
-//Check User
+// Check User
 app.get('/me', ensureAuthorized, function(req, res) {
     User.findOne({token: req.token}, function(err, user) {
         if (err || user === null) {
@@ -123,6 +124,7 @@ app.get('/me', ensureAuthorized, function(req, res) {
     });
 });
 
+// Interceptor to ensure user if valid
 function ensureAuthorized(req, res, next) {
     var bearerHeader = req.headers["authorization"];
     if (typeof bearerHeader !== 'undefined') {
@@ -134,8 +136,8 @@ function ensureAuthorized(req, res, next) {
     }
 }
 
- // Find film
- app.get('/api', function (req, res) {
+// Find film
+app.get('/api', function (req, res) {
 	var titleName = req.query.title;
  	omdb.findMovie(req.query.title).then(function(response) {
  		var parsedResponse = JSON.parse(response);
@@ -149,7 +151,7 @@ function ensureAuthorized(req, res, next) {
  				return res.send(ex);
  			}
  	});
- });
+});
 
 // Validate Film
 app.get('/api/validate', function(req, res) {
@@ -182,7 +184,7 @@ app.post('/api/films', ensureAuthorized, function(req, res) {
 	User.findOne({token: req.token}, function(err, user) {
 		if (!err) {
 
-			film = createFilmModel(req);
+			film = Film.createFilmModel(req);
 
 			omdb.validateMovie(film.imdbID).then(function(response){
 				var parsedResponse = JSON.parse(response);
@@ -194,7 +196,6 @@ app.post('/api/films', ensureAuthorized, function(req, res) {
 						return res.status(400).send('Invalid movie');
 					} else {
 							User.find({'movies.imdbID': film.imdbID}, function(err, movieFound) {
-
 									if (!movieFound.length) {
 										user.movies.push(film);
 										user.save(function (err) {
@@ -226,30 +227,32 @@ app.post('/api/films', ensureAuthorized, function(req, res) {
 //Delete a film from collection
 app.delete('/api/films/:id', ensureAuthorized, function (req, res){
 	log.info('DELETE films');
-	//TODO: Return 400 if movie does not exist in user's library 
+	//TODO: Return 400 if movie does not exist in user's library
 	return User.findOneAndUpdate({token: req.token}, {
 		$pull: {
 			movies: {imdbID: req.params.id}
 		}
 	}, function(err, data) {
+			log.info(err);
 			if (err) {
 				return res.status(400).send(err);
 			}
-			console.log(User);
+
+			log.info('Fetching new movies list');
 			return User.findOne({token: req.token}, function(err, user) {
-					console.log(err , user);
-	        if (err || user === null) {
-	            return res.status(401).json({
-	                type: false,
-	                data: "Error occured: " + err
-	            });
-	        } else {
-	            return res.status(200).json({
-	                type: true,
-	                data: user
-	            });
-	        }
-	    });
+				log.info(err, user);
+					if (err || user === null) {
+							return res.status(401).json({
+									type: false,
+									data: "Error occured: " + err
+							});
+					} else {
+							return res.status(200).json({
+									type: true,
+									data: user
+							});
+					}
+			});
 	});
 });
 
@@ -260,33 +263,5 @@ var server = app.listen(app.get('port'), function() {
 process.on('uncaughtException', function(err) {
     console.log(err);
 });
-
-function createFilmModel(req) {
-	var film;
-
-	film = {
-		title: req.body.title,
-		year: req.body.year,
-		rated: req.body.rated,
-		released: req.body.released,
-		runtime: req.body.runtime,
-		genre: req.body.genre,
-		director: req.body.director,
-		writer: req.body.writer,
-		actors: req.body.actors,
-		plot: req.body.plot,
-		language: req.body.language,
-		country: req.body.country,
-		awards: req.body.awards,
-		poster: req.body.poster,
-		metascore: req.body.metascore,
-		imdbRating: req.body.imdbRating,
-		imdbVotes: req.body.imdbVotes,
-		imdbID: req.body.imdbID,
-		response: req.body.response
-	};
-
-	return film;
-}
 
 module.exports.getApp = app;

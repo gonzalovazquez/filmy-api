@@ -8,6 +8,8 @@
   "scripts": {
     "start": "node app.js",
     "stop": "node app.js",
+    "dev": "node app development",
+    "dev-data": "mongod --dbpath=/Users/gv/Projects/mongodb-2.6.3",
     "test": "node node_modules/mocha/bin/mocha"
   },
   "contributors": [

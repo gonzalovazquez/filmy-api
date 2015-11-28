@@ -3,9 +3,8 @@ var databaseEndPoint = require('../config/config.js');
 var environment = process.argv[2] || 'production';
 
 // connect to database
-// var db = mongoose.connect(databaseEndPoint[environment]);
+var db = mongoose.connect(databaseEndPoint[environment]);
 
-var db = mongoose.connect(databaseEndPoint['development']);
 // create schema for film
 var FilmSchema = new mongoose.Schema({
 	title: String,
