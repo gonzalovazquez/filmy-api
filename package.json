@@ -8,6 +8,8 @@
   "scripts": {
     "start": "node app.js",
     "stop": "node app.js",
+    "dev": "node app development",
+    "dev-data": "mongod --dbpath=/Users/gv/Projects/mongodb-2.6.3",
     "test": "node node_modules/mocha/bin/mocha"
   },
   "contributors": [
@@ -30,15 +32,17 @@
   "dependencies": {
     "body-parser": "^1.6.3",
     "cors": "^2.4.1",
+    "ejs": "^1.0.0",
     "express": "^4.8.3",
     "express-validator": "^2.9.0",
     "forever": "^0.14.1",
     "jade": "^1.11.0",
+    "jsonwebtoken": "^5.4.1",
     "log": "^1.4.0",
     "mongoose": "^4.0.1",
+    "morgan": "^1.6.1",
     "promise": "^7.0.0",
-    "request": "^2.55.0",
-    "ejs": "^1.0.0"
+    "request": "^2.55.0"
   },
   "engines": {
     "node": "0.10.x"

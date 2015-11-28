@@ -1,31 +1,29 @@
-var mongoose = require('mongoose');
-var databaseEndPoint = require('../config/config.js');
-var environment = process.argv[2] || 'production';
+var createFilmModel = function(req) {
+	var film;
 
-var db = mongoose.connect(databaseEndPoint[environment]);
+	film = {
+		title: req.body.title,
+		year: req.body.year,
+		rated: req.body.rated,
+		released: req.body.released,
+		runtime: req.body.runtime,
+		genre: req.body.genre,
+		director: req.body.director,
+		writer: req.body.writer,
+		actors: req.body.actors,
+		plot: req.body.plot,
+		language: req.body.language,
+		country: req.body.country,
+		awards: req.body.awards,
+		poster: req.body.poster,
+		metascore: req.body.metascore,
+		imdbRating: req.body.imdbRating,
+		imdbVotes: req.body.imdbVotes,
+		imdbID: req.body.imdbID,
+		response: req.body.response
+	};
 
-//create schema for film
-var filmSchema = new mongoose.Schema({
-	title: String,
-	year: Number,
-	rated: String,
-	released: Date,
-	runtime: Number,
-	genre: Array,
-	director: String,
-	writer: Array,
-	actors: Array,
-	plot: String,
-	language: Array,
-	country: String,
-	awards: String,
-	poster: String,
-	metascore: Number,
-	imdbRating: Number,
-	imdbVotes: Number,
-	imdbID: String,
-	response: Boolean
-});
-//compile schema to model
+	return film;
+};
 
-module.exports = db.model('film', filmSchema, 'movies');
+module.exports.createFilmModel = createFilmModel;

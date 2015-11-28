@@ -4,7 +4,6 @@ var HOSTNAME = 'http://www.omdbapi.com/?';
 
 function findMovie(name) {
 	var movieName = encodeURIComponent(name);
-	console.log(movieName);
 	return new Promise(function (fulfill, reject) {
 		request
 			.get(HOSTNAME + 't=' + movieName)
@@ -26,7 +25,6 @@ function validateMovie(id) {
 			.get(HOSTNAME + 'i=' + id)
 			.on('data', function(res) {
 				//Resolve promise
-				console.log(res + 'DATA FROM SERVICES');
 				fulfill(res);
 			})
 			.on('error', function(err) {
