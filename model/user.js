@@ -1,9 +1,9 @@
 var mongoose = require('mongoose');
 var databaseEndPoint = require('../config/config.js');
-var environment = process.argv[2] || 'production';
 
+console.log('Filmy running in: ', process.env.NODE_ENV);
 // connect to database
-var db = mongoose.connect(databaseEndPoint[environment]);
+var db = mongoose.connect(databaseEndPoint[process.env.NODE_ENV]);
 
 // create schema for film
 var FilmSchema = new mongoose.Schema({
