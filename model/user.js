@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var databaseEndPoint = require('../config/config.js');
 
+console.log('Filmy running in: ', process.env.NODE_ENV);
 // connect to database
 var db = mongoose.connect(databaseEndPoint[process.env.NODE_ENV]);
 
