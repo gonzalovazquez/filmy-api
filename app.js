@@ -35,7 +35,7 @@ app.all('/', function(req, res, next) {
 
 // Authenticate user
 app.post('/authenticate', function(req, res) {
-		var error = validateRequest.validateUser(req);
+		var error = validateRequest.validateAuthenticate(req);
 
 		if (error) {
 			return res.status(400).send('Wrong format' + error);
