@@ -60,7 +60,6 @@ describe('user', function() {
 						.send({username: 'ricardo', email: emailAddress, password: globalUser.password})
 						.expect(200)
 						.end(function(err, res) {
-							console.log(res.body);
 							assert.equal(res.body.data.username, 'ricardo');
 							assert.equal(res.body.data.email, emailAddress);
 							assert.equal(res.body.data.password, globalUser.password);

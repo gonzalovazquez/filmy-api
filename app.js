@@ -199,7 +199,7 @@ app.post('/api/films', ensureAuthorized, function(req, res) {
 										user.movies.push(film);
 										user.save(function (err) {
 											if (!err) {
-													//log.info('Saved films' + film);
+													log.info('Saved film' + film);
 													return res.status(200).send(user);
 											} else {
 													log.error(err);
