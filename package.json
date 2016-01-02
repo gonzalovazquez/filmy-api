@@ -10,7 +10,8 @@
     "stop": "node app.js",
     "dev": "NODE_ENV=development node app",
     "dev-server": "mongod --dbpath=/Users/gv/Projects/mongodb-2.6.3",
-    "test": "NODE_ENV=staging node node_modules/mocha/bin/mocha"
+    "test": "NODE_ENV=staging node node_modules/mocha/bin/mocha",
+    "test-local": "NODE_ENV=development node node_modules/mocha/bin/mocha"
   },
   "contributors": [
     {

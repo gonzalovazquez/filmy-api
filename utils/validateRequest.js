@@ -13,9 +13,6 @@ var validateRequest = {
 		req.checkBody('runtime', 'Invalid runtime').notEmpty();
 
 		errors = req.validationErrors();
-
-		log.info(JSON.stringify(errors));
-
 		return errors;
 	},
 	validateUser: function(req) {
@@ -28,6 +25,15 @@ var validateRequest = {
 		errors = req.validationErrors();
 		log.info(JSON.stringify(errors));
 
+		return errors;
+	},
+	validateAuthenticate: function(req) {
+		var errors;
+
+		req.checkBody('email', 'Invalid email').notEmpty();
+		req.checkBody('password', 'Invalid password').notEmpty();
+
+		errors = req.validationErrors();
 		return errors;
 	}
 };

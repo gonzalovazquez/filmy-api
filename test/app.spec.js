@@ -52,7 +52,7 @@ describe('user', function() {
 			});
 
 			it('should create a user', function(done) {
-				 var randomInt = Math.round(Math.random() * 100),
+				 var randomInt = Math.round(Math.random() * 10000),
 				 			emailAddress = 'example' + randomInt + '@gmail.com';
 
 					request(app)
