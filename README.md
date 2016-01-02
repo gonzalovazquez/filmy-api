@@ -9,6 +9,7 @@ A thin server for Filmy Client
 
 ## Release Notes
 
-0.9.1:
+0.9.2:
 ---
 - Added staging environment
+- Fixed bug where movie library did not represent actual user

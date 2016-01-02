@@ -133,7 +133,7 @@ function ensureAuthorized(req, res, next) {
         req.token = bearer;
         next();
     } else {
-        res.send(403);
+        res.status(403).send('Unable to authenticate');
     }
 }
 
@@ -166,7 +166,7 @@ app.get('/api/validate', function(req, res) {
 					return res.send(parsedResponse);
 				}
 			} catch (ex) {
-				return res.send(ex);
+				return res.status(401).send(ex);
 			}
 		});
 });
@@ -192,16 +192,14 @@ app.post('/api/films', ensureAuthorized, function(req, res) {
 
 				try {
 					if (parsedResponse.Response === "False") {
-						log.info('Invalid movie');
-						log.info(parsedResponse.Error);
 						return res.status(400).send('Invalid movie');
 					} else {
-							User.find({'movies.imdbID': film.imdbID}, function(err, movieFound) {
+							User.find({token: req.token, 'movies.imdbID': film.imdbID}, function(err, movieFound) {
 									if (!movieFound.length) {
 										user.movies.push(film);
 										user.save(function (err) {
 											if (!err) {
-													log.info('POST films');
+													//log.info('Saved films' + film);
 													return res.status(200).send(user);
 											} else {
 													log.error(err);
@@ -234,14 +232,12 @@ app.delete('/api/films/:id', ensureAuthorized, function (req, res){
 			movies: {imdbID: req.params.id}
 		}
 	}, function(err, data) {
-			log.info(err);
 			if (err) {
 				return res.status(400).send(err);
 			}
 
 			log.info('Fetching new movies list');
 			return User.findOne({token: req.token}, function(err, user) {
-				log.info(err, user);
 					if (err || user === null) {
 							return res.status(401).json({
 									type: false,
@@ -258,11 +254,11 @@ app.delete('/api/films/:id', ensureAuthorized, function (req, res){
 });
 
 var server = app.listen(app.get('port'), function() {
-	console.log('CORS-enabled web server listening on port %d', server.address().port);
+	log.info('CORS-enabled web server listening on port %d', server.address().port);
 });
 
 process.on('uncaughtException', function(err) {
-    console.log(err);
+    log.error(err);
 });
 
 module.exports.getApp = app;

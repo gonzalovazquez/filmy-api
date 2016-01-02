@@ -13,9 +13,6 @@ var validateRequest = {
 		req.checkBody('runtime', 'Invalid runtime').notEmpty();
 
 		errors = req.validationErrors();
-
-		log.info(JSON.stringify(errors));
-
 		return errors;
 	},
 	validateUser: function(req) {
@@ -37,8 +34,6 @@ var validateRequest = {
 		req.checkBody('password', 'Invalid password').notEmpty();
 
 		errors = req.validationErrors();
-		log.info(JSON.stringify(errors));
-
 		return errors;
 	}
 };
