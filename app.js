@@ -13,6 +13,7 @@ var omdb = require('./services/omdb.js');
 var validateRequest = require('./utils/validateRequest').validateRequest;
 
 app.use(cors());
+app.use(express.static(__dirname + '/public'))
 app.use(bodyParser.json({ extended: true }));
 app.use(expressValidator());
 app.set('port', (process.env.PORT || 5000));
